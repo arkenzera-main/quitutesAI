@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas - Quitutes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="img/quiIco.ico" type="image/x-icon">
+    <style>
+        /* Custom styles */
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+        .popup {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -45%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .fc-daygrid-day:hover {
+            background-color: rgba(79, 70, 229, 0.1) !important;
+        }
+        .fc-daygrid-day-number {
+            color: #4f46e5 !important;
+            font-weight: 600 !important;
+        }
+        .fc-col-header-cell-cushion {
+            color: #4f46e5 !important;
+            font-weight: 600 !important;
+        }
+        .fc-today {
+            background-color: rgba(79, 70, 229, 0.05) !important;
+        }
+        .task-card {
+            transition: all 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1);
+        }
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+    </style>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar bg-indigo-700 text-white w-64 flex flex-col fixed h-full">
+            <a href="index.html">
+                <div class="p-4 flex items-center space-x-3 border-b border-indigo-600">
+                    <div class="bg-white p-2 rounded-lg">
+                        <i class="fas fa-cookie-bite text-indigo-700 text-xl"></i>
+                    </div>
+                    <span class="logo-text font-bold text-xl">Quitutes</span>
+                </div>
+            </a>
+
+            <div class="p-4 flex-1 overflow-y-auto">
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="dashboard.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="estoque.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-box-open mr-3"></i>
+                                <span class="nav-text">Estoque</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="receitas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-utensils mr-3"></i>
+                                <span class="nav-text">Receitas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tarefas.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-tasks mr-3"></i>
+                                <span class="nav-text">Tarefas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="financas.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-money-bill-wave mr-3"></i>
+                                <span class="nav-text">Finanças</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="vendas.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                <span class="nav-text">Vendas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="config.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-cog mr-3"></i>
+                                <span class="nav-text">Configurações</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-indigo-600">
+                <button id="toggle-sidebar" class="flex items-center justify-center w-full p-2 rounded-lg hover:bg-indigo-800 transition">
+                    <i class="fas fa-chevron-left"></i>
+                    <span class="nav-text ml-3">Recolher</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content ml-64 flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-tasks text-indigo-600 mr-2"></i>
+                    Tarefas
+                </h1>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="busca-tarefa" placeholder="Buscar tarefa..." 
+                            class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <i class="fas fa-bell text-gray-600 text-xl cursor-pointer hover:text-indigo-600"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </div>
+
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Calendar and Add Button -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-semibold text-gray-800">Próximas Tarefas</h2>
+                                <button id="btn-add-tarefa" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1 px-3 rounded-lg text-sm flex items-center">
+                                    <i class="fas fa-plus mr-1"></i>
+                                    Adicionar
+                                </button>
+                            </div>
+                            
+                            <div id="tarefas-proximas" class="space-y-3">
+                                <!-- Upcoming tasks will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Tasks -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Todas as Tarefas</h2>
+                        <div class="flex items-center space-x-2">
+                            <select id="filtro-status" class="text-sm border rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="all">Todos os status</option>
+                                <option value="pending">Pendentes</option>
+                                <option value="completed">Concluídas</option>
+                            </select>
+                            <select id="filtro-prioridade" class="text-sm border rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="all">Todas prioridades</option>
+                                <option value="high">Alta</option>
+                                <option value="medium">Média</option>
+                                <option value="low">Baixa</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="tarefas-lista" class="divide-y divide-gray-200">
+                        <!-- All tasks will be loaded here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div id="modal-tarefa" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900" id="modal-title">Adicionar Tarefa</h3>
+                        <button type="button" id="close-modal" class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="form-tarefa">
+                        <div class="mb-4">
+                            <label for="titulo" class="block text-sm font-medium text-gray-700">Título *</label>
+                            <input type="text" id="titulo" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="descricao" class="block text-sm font-medium text-gray-700">Descrição</label>
+                            <textarea id="descricao" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="data" class="block text-sm font-medium text-gray-700">Data *</label>
+                                <input type="date" id="data" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                            </div>
+                            <div>
+                                <label for="hora" class="block text-sm font-medium text-gray-700">Hora</label>
+                                <input type="time" id="hora" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="prioridade" class="block text-sm font-medium text-gray-700">Prioridade *</label>
+                                <select id="prioridade" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                                    <option value="high">Alta</option>
+                                    <option value="medium" selected>Média</option>
+                                    <option value="low">Baixa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
+                                <select id="categoria" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Selecione...</option>
+                                    <option value="production">Produção</option>
+                                    <option value="delivery">Entrega</option>
+                                    <option value="meeting">Reunião</option>
+                                    <option value="purchase">Compra</option>
+                                    <option value="other">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancel-modal" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
+    <script>
+        let tarefaEditandoId = null;
+        let tarefasCache = [];
+        let calendar;
+
+        // Toggle sidebar
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('ml-64');
+            document.querySelector('.main-content').classList.toggle('ml-20');
+            
+            const icon = this.querySelector('i');
+            if (document.querySelector('.sidebar').classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // Initialize calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'pt-br',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek'
+                },
+                buttonText: {
+                    today: 'Hoje',
+                    month: 'Mês',
+                    week: 'Semana'
+                },
+                dayMaxEvents: true,
+                eventClick: function(info) {
+                    abrirVisualizacaoTarefa(info.event.extendedProps.taskData);
+                },
+                dateClick: function(info) {
+                    novaTarefaNaData(info.dateStr);
+                },
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    // This would be replaced with your actual API call
+                    const events = tarefasCache.map(task => ({
+                        id: task.id,
+                        title: task.titulo,
+                        start: task.data + (task.hora ? 'T' + task.hora : ''),
+                        allDay: !task.hora,
+                        color: getPriorityColor(task.prioridade),
+                        extendedProps: {
+                            taskData: task
+                        }
+                    }));
+                    successCallback(events);
+                }
+            });
+
+            calendar.render();
+            carregarTarefas();
+        });
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Event listeners for modals
+        document.getElementById('btn-add-tarefa').addEventListener('click', () => {
+            document.getElementById('form-tarefa').reset();
+            tarefaEditandoId = null;
+            document.getElementById('modal-title').textContent = 'Adicionar Tarefa';
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('data').value = today;
+            openModal('modal-tarefa');
+        });
+
+        document.getElementById('close-modal').addEventListener('click', () => closeModal('modal-tarefa'));
+        document.getElementById('cancel-modal').addEventListener('click', () => closeModal('modal-tarefa'));
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === document.getElementById('modal-tarefa')) {
+                closeModal('modal-tarefa');
+            }
+        });
+
+        // Task functions
+        function carregarTarefas() {
+            // This would be replaced with your actual API call
+            // For demo purposes, we'll use some mock data
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            
+            const mockTarefas = [
+                {
+                    id: 1,
+                    titulo: "Preparar pedido para cliente X",
+                    descricao: "Preparar 3 bolos de chocolate e 50 brigadeiros",
+                    data: today.toISOString().split('T')[0],
+                    hora: "14:00",
+                    prioridade: "high",
+                    categoria: "production",
+                    status: "pending",
+                    criadoEm: today.toISOString()
+                },
+                {
+                    id: 2,
+                    titulo: "Reunião com fornecedor",
+                    descricao: "Negociar preço do chocolate em pó",
+                    data: tomorrow.toISOString().split('T')[0],
+                    hora: "10:30",
+                    prioridade: "medium",
+                    categoria: "meeting",
+                    status: "pending",
+                    criadoEm: today.toISOString()
+                },
+                {
+                    id: 3,
+                    titulo: "Comprar ingredientes",
+                    descricao: "Farinha, açúcar, ovos e leite condensado",
+                    data: nextWeek.toISOString().split('T')[0],
+                    prioridade: "low",
+                    categoria: "purchase",
+                    status: "pending",
+                    criadoEm: today.toISOString()
+                },
+                {
+                    id: 4,
+                    titulo: "Entrega para festa de aniversário",
+                    descricao: "Entregar bolo e doces para festa na Rua das Flores, 123",
+                    data: today.toISOString().split('T')[0],
+                    hora: "16:00",
+                    prioridade: "high",
+                    categoria: "delivery",
+                    status: "completed",
+                    criadoEm: today.toISOString()
+                }
+            ];
+            
+            tarefasCache = mockTarefas;
+            renderizarTarefas();
+            calendar.refetchEvents();
+        }
+
+        function renderizarTarefas() {
+            renderizarTarefasProximas();
+            renderizarTodasTarefas();
+        }
+
+        function renderizarTarefasProximas() {
+            const container = document.getElementById('tarefas-proximas');
+            container.innerHTML = '';
+            
+            // Get today and tomorrow dates
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            // Filter upcoming tasks (today and tomorrow, pending only)
+            const upcomingTasks = tarefasCache
+                .filter(task => 
+                    (task.data === today || task.data === tomorrowStr) && 
+                    task.status === 'pending'
+                )
+                .sort((a, b) => {
+                    // Sort by priority (high first) then by time
+                    if (a.prioridade === 'high' && b.prioridade !== 'high') return -1;
+                    if (a.prioridade !== 'high' && b.prioridade === 'high') return 1;
+                    if (a.hora && b.hora) return a.hora.localeCompare(b.hora);
+                    return 0;
+                });
+            
+            if (upcomingTasks.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">Nenhuma tarefa próxima</p>';
+                return;
+            }
+            
+            upcomingTasks.forEach(task => {
+                const taskEl = document.createElement('div');
+                taskEl.className = `bg-white rounded-lg shadow-sm p-3 task-card priority-${task.prioridade}`;
+                taskEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-medium text-gray-800">${task.titulo}</h4>
+                            ${task.descricao ? `<p class="text-sm text-gray-600 mt-1 line-clamp-1">${task.descricao}</p>` : ''}
+                        </div>
+                        <button onclick="alternarStatusTarefa(${task.id});event.stopPropagation();" class="text-gray-400 hover:text-indigo-600">
+                            <i class="far fa-circle"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs font-medium ${getPriorityTextColor(task.prioridade)}">
+                            <i class="fas ${getPriorityIcon(task.prioridade)} mr-1"></i>
+                            ${formatPriority(task.prioridade)}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                            ${formatDate(task.data)}${task.hora ? ' às ' + task.hora : ''}
+                        </span>
+                    </div>
+                `;
+                taskEl.addEventListener('click', () => editarTarefa(task.id));
+                container.appendChild(taskEl);
+            });
+        }
+
+        function renderizarTodasTarefas() {
+            const container = document.getElementById('tarefas-lista');
+            container.innerHTML = '';
+            
+            const statusFilter = document.getElementById('filtro-status').value;
+            const priorityFilter = document.getElementById('filtro-prioridade').value;
+            
+            let filteredTasks = [...tarefasCache];
+            
+            // Apply filters
+            if (statusFilter !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.status === statusFilter);
+            }
+            if (priorityFilter !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.prioridade === priorityFilter);
+            }
+            
+            // Sort by date (ascending) then by priority (high first)
+            filteredTasks.sort((a, b) => {
+                if (a.data < b.data) return -1;
+                if (a.data > b.data) return 1;
+                if (a.prioridade === 'high' && b.prioridade !== 'high') return -1;
+                if (a.prioridade !== 'high' && b.prioridade === 'high') return 1;
+                return 0;
+            });
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-gray-500">Nenhuma tarefa encontrada</div>';
+                return;
+            }
+            
+            filteredTasks.forEach(task => {
+                const taskEl = document.createElement('div');
+                taskEl.className = `p-4 hover:bg-gray-50 cursor-pointer task-card ${task.status === 'completed' ? 'opacity-70' : ''}`;
+                taskEl.innerHTML = `
+                    <div class="flex items-start">
+                        <button onclick="alternarStatusTarefa(${task.id});event.stopPropagation();" class="mt-1 mr-3 text-gray-400 hover:text-indigo-600">
+                            <i class="far ${task.status === 'completed' ? 'fa-check-circle text-green-500' : 'fa-circle'}"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-medium ${task.status === 'completed' ? 'text-gray-500 line-through' : 'text-gray-800'}">${task.titulo}</h4>
+                                    ${task.descricao ? `<p class="text-sm ${task.status === 'completed' ? 'text-gray-400' : 'text-gray-600'} mt-1">${task.descricao}</p>` : ''}
+                                </div>
+                                <div class="flex space-x-2 ml-2">
+                                    <button onclick="editarTarefa(${task.id});event.stopPropagation();" class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="excluirTarefa(${task.id});event.stopPropagation();" class="text-red-600 hover:text-red-800 text-sm">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between mt-2">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-xs font-medium ${getPriorityTextColor(task.prioridade)}">
+                                        <i class="fas ${getPriorityIcon(task.prioridade)} mr-1"></i>
+                                        ${formatPriority(task.prioridade)}
+                                    </span>
+                                    ${task.categoria ? `<span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800">${formatCategory(task.categoria)}</span>` : ''}
+                                </div>
+                                <span class="text-xs text-gray-500">
+                                    ${formatDate(task.data)}${task.hora ? ' às ' + task.hora : ''}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                taskEl.addEventListener('click', () => abrirVisualizacaoTarefa(task));
+                container.appendChild(taskEl);
+            });
+        }
+
+        function novaTarefaNaData(dateStr) {
+            document.getElementById('form-tarefa').reset();
+            tarefaEditandoId = null;
+            document.getElementById('modal-title').textContent = 'Adicionar Tarefa';
+            document.getElementById('data').value = dateStr;
+            openModal('modal-tarefa');
+        }
+
+        function abrirVisualizacaoTarefa(tarefa) {
+            // For simplicity, we'll just open the edit modal
+            editarTarefa(tarefa.id);
+        }
+
+        function editarTarefa(id) {
+            // This would be replaced with your actual API call
+            const tarefa = tarefasCache.find(t => t.id === id);
+            if (tarefa) {
+                document.getElementById('titulo').value = tarefa.titulo;
+                document.getElementById('descricao').value = tarefa.descricao || '';
+                document.getElementById('data').value = tarefa.data;
+                document.getElementById('hora').value = tarefa.hora || '';
+                document.getElementById('prioridade').value = tarefa.prioridade;
+                document.getElementById('categoria').value = tarefa.categoria || '';
+                tarefaEditandoId = id;
+                document.getElementById('modal-title').textContent = 'Editar Tarefa';
+                openModal('modal-tarefa');
+            }
+        }
+
+        function alternarStatusTarefa(id) {
+            event.stopPropagation();
+            // This would be replaced with your actual API call
+            const index = tarefasCache.findIndex(t => t.id === id);
+            if (index !== -1) {
+                tarefasCache[index].status = tarefasCache[index].status === 'completed' ? 'pending' : 'completed';
+                renderizarTarefas();
+                calendar.refetchEvents();
+            }
+        }
+
+        function excluirTarefa(id) {
+            event.stopPropagation();
+            if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                // This would be replaced with your actual API call
+                tarefasCache = tarefasCache.filter(t => t.id !== id);
+                renderizarTarefas();
+                calendar.refetchEvents();
+                alert('Tarefa excluída com sucesso!');
+            }
+        }
+
+        // Form submission
+        document.getElementById('form-tarefa').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                titulo: document.getElementById('titulo').value,
+                descricao: document.getElementById('descricao').value,
+                data: document.getElementById('data').value,
+                hora: document.getElementById('hora').value || null,
+                prioridade: document.getElementById('prioridade').value,
+                categoria: document.getElementById('categoria').value || null,
+                status: 'pending'
+            };
+            
+            if (tarefaEditandoId) {
+                // Update existing task
+                const index = tarefasCache.findIndex(t => t.id === tarefaEditandoId);
+                if (index !== -1) {
+                    tarefasCache[index] = { ...tarefasCache[index], ...formData };
+                }
+            } else {
+                // Add new task
+                const newId = Math.max(...tarefasCache.map(t => t.id), 0) + 1;
+                formData.id = newId;
+                formData.criadoEm = new Date().toISOString();
+                tarefasCache.push(formData);
+            }
+            
+            renderizarTarefas();
+            calendar.refetchEvents();
+            closeModal('modal-tarefa');
+            alert('Tarefa salva com sucesso!');
+        });
+
+        // Filter events
+        document.getElementById('filtro-status').addEventListener('change', renderizarTodasTarefas);
+        document.getElementById('filtro-prioridade').addEventListener('change', renderizarTodasTarefas);
+
+        // Helper functions
+        function getPriorityColor(priority) {
+            switch(priority) {
+                case 'high': return '#ef4444';
+                case 'medium': return '#f59e0b';
+                case 'low': return '#10b981';
+                default: return '#4f46e5';
+            }
+        }
+
+        function getPriorityTextColor(priority) {
+            switch(priority) {
+                case 'high': return 'text-red-600';
+                case 'medium': return 'text-yellow-600';
+                case 'low': return 'text-green-600';
+                default: return 'text-indigo-600';
+            }
+        }
+
+        function getPriorityIcon(priority) {
+            switch(priority) {
+                case 'high': return 'fa-exclamation-circle';
+                case 'medium': return 'fa-exclamation-triangle';
+                case 'low': return 'fa-check-circle';
+                default: return 'fa-info-circle';
+            }
+        }
+
+        function formatPriority(priority) {
+            switch(priority) {
+                case 'high': return 'Alta';
+                case 'medium': return 'Média';
+                case 'low': return 'Baixa';
+                default: return priority;
+            }
+        }
+
+        function formatCategory(category) {
+            switch(category) {
+                case 'production': return 'Produção';
+                case 'delivery': return 'Entrega';
+                case 'meeting': return 'Reunião';
+                case 'purchase': return 'Compra';
+                case 'other': return 'Outro';
+                default: return category;
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return 'Hoje';
+            }
+            
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (date.toDateString() === tomorrow.toDateString()) {
+                return 'Amanhã';
+            }
+            
+            const options = { weekday: 'short', day: 'numeric', month: 'short' };
+            return date.toLocaleDateString('pt-BR', options);
+        }
+
+        // Script: pagina atual sombra (corrigido)
+        document.addEventListener('DOMContentLoaded', function () {
+            // Remove sombra de todos
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                link.classList.remove('bg-indigo-800');
+            });
+
+            // Aplica sombra apenas ao item correto
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (
+                    (window.location.pathname.endsWith('dashboard.html') || window.location.pathname.endsWith('index.html')) &&
+                    (href === '#' || href === 'dashboard.html' || href === 'index.html')
+                ) {
+                    link.classList.add('bg-indigo-800');
+                } else if (
+                    href &&
+                    href !== '#' &&
+                    window.location.pathname.endsWith(href)
+                ) {
+                    link.classList.add('bg-indigo-800');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quitutes D'Line</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #f8fafc;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+    .login-container {
+      background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(247,250,252,0.9) 100%);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .logo {
+      font-family: 'Pacifico', cursive;
+      background: linear-gradient(to right, #4f46e5, #7c3aed);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .btn-primary {
+      background-color: #4f46e5;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+    .slogan {
+      color: #4b5563;
+    }
+    .cookie-icon {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="login-container rounded-2xl p-8 md:p-12 w-full max-w-md relative overflow-hidden">
+      <!-- Decorative elements -->
+      <div class="absolute -top-20 -right-20 w-40 h-40 bg-indigo-100 rounded-full opacity-20"></div>
+      <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-100 rounded-full opacity-20"></div>
+      
+      <div class="flex flex-col items-center text-center relative z-10">
+        <!-- Cookie icon -->
+        <div class="cookie-icon mb-6">
+          <div class="bg-white p-4 rounded-full shadow-lg">
+            <i class="fas fa-cookie-bite text-4xl text-indigo-600"></i>
+          </div>
+        </div>
+        
+        <!-- Logo -->
+        <h1 class="logo text-4xl md:text-5xl font-bold mb-2">Quitutes D'Line</h1>
+        
+        <!-- Slogan -->
+        <p class="slogan text-lg mb-8">Sabor e carinho em cada pedacinho <span class="text-indigo-500">💙</span></p>
+        
+        <!-- Login button -->
+        <button class="btn-primary text-white font-medium py-3 px-8 rounded-lg flex items-center" id="entrarBtn">
+          <i class="fas fa-store mr-3"></i> 
+          Entrar na loja
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboard-container" style="display: none;">
+    <iframe src="dashboard.html" frameborder="0" style="width: 100%; height: 100vh;"></iframe>
+  </div>
+
+  <script>
+    document.getElementById('entrarBtn').addEventListener('click', function() {
+      window.location.href = "dashboard.html";
+    });
+  </script>
+</body>
+</html>

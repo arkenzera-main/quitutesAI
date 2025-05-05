@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Estoque - Quitutes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="img/quiIco.ico" type="image/x-icon">
+    <style>
+        /* Custom styles */
+        .sidebar {
+            transition: all 0.3s;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+
+        .main-content {
+            transition: all 0.3s;
+        }
+
+        .sidebar.collapsed+.main-content {
+            margin-left: 80px;
+        }
+
+        .popup {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .table-row-hover:hover {
+            background-color: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar bg-indigo-700 text-white w-64 flex flex-col fixed h-full">
+            <div class="p-4 flex items-center space-x-3 border-b border-indigo-600">
+                <div class="bg-white p-2 rounded-lg">
+                    <i class="fas fa-cookie-bite text-indigo-700 text-xl"></i>
+                </div>
+                <span class="logo-text font-bold text-xl">Quitutes</span>
+            </div>
+
+            <div class="p-4 flex-1 overflow-y-auto">
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="dashboard.html"
+                                class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="estoque.html"
+                                class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-box-open mr-3"></i>
+                                <span class="nav-text">Estoque</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="receitas.html"
+                                class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-utensils mr-3"></i>
+                                <span class="nav-text">Receitas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tarefas.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-tasks mr-3"></i>
+                                <span class="nav-text">Tarefas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="financas.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-money-bill-wave mr-3"></i>
+                                <span class="nav-text">Finanças</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="vendas.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                <span class="nav-text">Vendas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="config.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-cog mr-3"></i>
+                                <span class="nav-text">Configurações</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-indigo-600">
+                <button id="toggle-sidebar"
+                    class="flex items-center justify-center w-full p-2 rounded-lg hover:bg-indigo-800 transition">
+                    <i class="fas fa-chevron-left"></i>
+                    <span class="nav-text ml-3">Recolher</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content ml-64 flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-box-open text-indigo-600 mr-2"></i>
+                    Gestão de Estoque
+                </h1>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Pesquisar..."
+                            class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <i class="fas fa-bell text-gray-600 text-xl cursor-pointer hover:text-indigo-600"></i>
+                            <span
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </div>
+
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Add Product Form -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Adicionar Movimentação</h2>
+
+                    <form id="estoque-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="col-span-2">
+                                <label for="produto"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                                <div class="relative">
+                                    <input type="text" id="produto"
+                                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        placeholder="Nome do Produto" required>
+                                    <i
+                                        class="fas fa-box-open absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="quantidade"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
+                                <div class="relative">
+                                    <input type="number" id="quantidade"
+                                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        placeholder="0" required>
+                                    <i
+                                        class="fas fa-hashtag absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <div class="relative">
+                                    <select id="tipo"
+                                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none"
+                                        required>
+                                        <option value="entrada">Entrada</option>
+                                        <option value="saida">Saída</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition flex items-center">
+                                <i class="fas fa-plus-circle mr-2"></i>
+                                Registrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Inventory Table -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Produtos em Estoque</h2>
+                        <div class="flex space-x-2">
+                            <button
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+                                <i class="fas fa-file-export mr-2"></i>
+                                Exportar
+                            </button>
+                            <button
+                                class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-4 py-2 rounded-lg transition flex items-center">
+                                <i class="fas fa-filter mr-2"></i>
+                                Filtrar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        #</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Produto</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Quantidade</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="estoque-tabela" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="p-4 border-t flex items-center justify-between text-sm text-gray-600">
+                        <div>Mostrando <span class="font-medium">1</span> a <span class="font-medium">10</span> de <span
+                                class="font-medium">24</span> resultados</div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50"><i
+                                    class="fas fa-chevron-left"></i></button>
+                            <button class="px-3 py-1 border rounded bg-indigo-600 text-white">1</button>
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50"><i
+                                    class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit Popup -->
+    <div id="popup-overlay" class="fixed inset-0 overlay z-50 hidden"></div>
+    <div id="edit-popup"
+        class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl z-50 w-full max-w-md popup">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-edit text-indigo-600 mr-2"></i>
+                    Editar Produto
+                </h3>
+                <button id="close-popup" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="edit-form" class="space-y-4">
+                <div>
+                    <label for="edit-produto" class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                    <input type="text" id="edit-produto"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        required>
+                </div>
+
+                <div>
+                    <label for="edit-quantidade" class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
+                    <input type="number" id="edit-quantidade"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        required>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button id="delete-item" type="button"
+                        class="px-4 py-2 border border-red-500 text-red-500 hover:bg-red-50 rounded-lg transition flex items-center">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        Remover
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition flex items-center">
+                        <i class="fas fa-save mr-2"></i>
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggle-sidebar').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('ml-64');
+            document.querySelector('.main-content').classList.toggle('ml-20');
+
+            const icon = this.querySelector('i');
+            if (document.querySelector('.sidebar').classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // Form submission
+        document.getElementById('estoque-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const produto = document.getElementById('produto').value;
+            const quantidade = document.getElementById('quantidade').value;
+            const tipo = document.getElementById('tipo').value;
+
+            // Simulate API call
+            setTimeout(() => {
+                showNotification('Movimentação registrada com sucesso!', 'success');
+                document.getElementById('estoque-form').reset();
+                loadInventoryData();
+            }, 500);
+        });
+
+        // Load inventory data
+        function loadInventoryData() {
+            // Simulated data
+            const data = [
+                { id: 1, produto: "Bolo de Chocolate", quantidade: 15, status: "disponivel" },
+                { id: 2, produto: "Brigadeiro", quantidade: 42, status: "disponivel" },
+                { id: 3, produto: "Beijinho", quantidade: 28, status: "disponivel" },
+                { id: 4, produto: "Cupcake", quantidade: 5, status: "baixo" },
+                { id: 5, produto: "Torta de Limão", quantidade: 8, status: "disponivel" },
+                { id: 6, produto: "Pão de Mel", quantidade: 3, status: "baixo" },
+                { id: 7, produto: "Bolo de Cenoura", quantidade: 12, status: "disponivel" },
+                { id: 8, produto: "Cookie", quantidade: 35, status: "disponivel" },
+                { id: 9, produto: "Brownie", quantidade: 20, status: "disponivel" },
+                { id: 10, produto: "Pudim", quantidade: 2, status: "baixo" }
+            ];
+
+            const tabela = document.getElementById('estoque-tabela');
+            tabela.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const statusClass = item.status === 'baixo' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+                const statusText = item.status === 'baixo' ? 'Estoque Baixo' : 'Disponível';
+
+                const row = document.createElement('tr');
+                row.className = 'table-row-hover transition';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-box text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">${item.produto}</div>
+                                <div class="text-gray-500 text-xs">ID: ${item.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">${item.quantidade}</span>
+                            <span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="openEditPopup(${item.id}, '${item.produto}', ${item.quantidade})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="removerItem(${item.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+                tabela.appendChild(row);
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white flex items-center ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                }`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'translate-x-4', 'transition');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Edit popup functions
+        let currentEditId = null;
+
+        function openEditPopup(id, produto, quantidade) {
+            currentEditId = id;
+            document.getElementById('edit-produto').value = produto;
+            document.getElementById('edit-quantidade').value = quantidade;
+            document.getElementById('popup-overlay').classList.remove('hidden');
+            document.getElementById('edit-popup').classList.remove('hidden');
+        }
+
+        function closeEditPopup() {
+            document.getElementById('popup-overlay').classList.add('hidden');
+            document.getElementById('edit-popup').classList.add('hidden');
+        }
+
+        document.getElementById('close-popup').addEventListener('click', closeEditPopup);
+
+        document.getElementById('edit-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const produto = document.getElementById('edit-produto').value;
+            const quantidade = document.getElementById('edit-quantidade').value;
+
+            // Simulate API call
+            setTimeout(() => {
+                showNotification('Produto atualizado com sucesso!', 'success');
+                closeEditPopup();
+                loadInventoryData();
+            }, 500);
+        });
+
+        document.getElementById('delete-item').addEventListener('click', function () {
+            if (confirm('Tem certeza que deseja remover este produto?')) {
+                // Simulate API call
+                setTimeout(() => {
+                    showNotification('Produto removido com sucesso!', 'success');
+                    closeEditPopup();
+                    loadInventoryData();
+                }, 500);
+            }
+        });
+
+        function removerItem(id) {
+            if (confirm('Tem certeza que deseja remover este produto?')) {
+                // Simulate API call
+                setTimeout(() => {
+                    showNotification('Produto removido com sucesso!', 'success');
+                    loadInventoryData();
+                }, 500);
+            }
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', loadInventoryData);
+
+
+        // Script: pagina atual sombra (corrigido)
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                link.classList.remove('bg-indigo-800');
+            });
+
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (
+                    (window.location.pathname.endsWith('dashboard.html') || window.location.pathname.endsWith('index.html')) &&
+                    (href === '#' || href === 'dashboard.html' || href === 'index.html')
+                ) {
+                    link.classList.add('bg-indigo-800');
+                } else if (
+                    href &&
+                    href !== '#' &&
+                    window.location.pathname.endsWith(href)
+                ) {
+                    link.classList.add('bg-indigo-800');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

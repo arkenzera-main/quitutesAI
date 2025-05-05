@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Quitutes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="img/quiIco.ico" type="image/x-icon">
+    <style>
+        /* Custom styles */
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+        .popup {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -45%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .positive-value {
+            color: #10b981;
+        }
+        .negative-value {
+            color: #ef4444;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .config-section {
+            transition: all 0.2s ease;
+        }
+        .config-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        /* Easter egg game styles */
+        #easter-egg-game {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        #easter-egg-game i {
+            color: white;
+            font-size: 24px;
+        }
+        #game-container {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            padding: 15px;
+            overflow: hidden;
+        }
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            background-color: #f3f4f6;
+        }
+        /* Crash screen styles */
+        #crash-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+        }
+        #crash-screen h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #f00;
+        }
+        #crash-screen p {
+            margin-bottom: 10px;
+        }
+        #crash-screen button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar bg-indigo-700 text-white w-64 flex flex-col fixed h-full">
+            <a href="index.html">
+                <div class="p-4 flex items-center space-x-3 border-b border-indigo-600">
+                    <div class="bg-white p-2 rounded-lg">
+                        <i class="fas fa-cookie-bite text-indigo-700 text-xl"></i>
+                    </div>
+                    <span class="logo-text font-bold text-xl">Quitutes</span>
+                </div>
+            </a>
+
+            <div class="p-4 flex-1 overflow-y-auto">
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="dashboard.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="estoque.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-box-open mr-3"></i>
+                                <span class="nav-text">Estoque</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="receitas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-utensils mr-3"></i>
+                                <span class="nav-text">Receitas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tarefas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tasks mr-3"></i>
+                                <span class="nav-text">Tarefas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="financas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-money-bill-wave mr-3"></i>
+                                <span class="nav-text">Finanças</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="vendas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                <span class="nav-text">Vendas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="config.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-cog mr-3"></i>
+                                <span class="nav-text">Configurações</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-indigo-600">
+                <button id="toggle-sidebar" class="flex items-center justify-center w-full p-2 rounded-lg hover:bg-indigo-800 transition">
+                    <i class="fas fa-chevron-left"></i>
+                    <span class="nav-text ml-3">Recolher</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content ml-64 flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-cog text-indigo-600 mr-2"></i>
+                    Configurações
+                </h1>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Buscar configuração..." 
+                            class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <i class="fas fa-bell text-gray-600 text-xl cursor-pointer hover:text-indigo-600"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </div>
+
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Error Message -->
+                <div id="mensagem-erro" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+                    <p id="erro-texto"></p>
+                </div>
+
+                <!-- Config Sections -->
+                <div class="grid grid-cols-1 gap-6 mb-6">
+                    <!-- User Settings -->
+                    <div class="config-section bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-user-cog text-indigo-600 mr-2"></i>
+                            Configurações de Usuário
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                    <input type="text" value="Administrador" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" value="admin@quitutes.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                                <div class="flex space-x-2">
+                                    <input type="password" placeholder="********" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Alterar</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto de Perfil</label>
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-user text-indigo-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 mr-2">
+                                            <i class="fas fa-upload mr-1"></i> Enviar
+                                        </button>
+                                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
+                                            <i class="fas fa-trash-alt mr-1"></i> Remover
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Settings -->
+                    <div class="config-section bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-mobile-alt text-indigo-600 mr-2"></i>
+                            Configurações do Aplicativo
+                        </h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tema</label>
+                                <div class="flex space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="theme" class="h-4 w-4 text-indigo-600" checked>
+                                        <span class="ml-2">Claro</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="theme" class="h-4 w-4 text-indigo-600">
+                                        <span class="ml-2">Escuro</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="theme" class="h-4 w-4 text-indigo-600">
+                                        <span class="ml-2">Sistema</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Notificações</label>
+                                <div class="space-y-2">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-indigo-600" checked>
+                                        <span class="ml-2">Ativar notificações</span>
+                                    </label>
+                                    <div class="ml-6">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600" checked>
+                                            <span class="ml-2">Notificações de vendas</span>
+                                        </label>
+                                        <label class="inline-flex items-center block mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600">
+                                            <span class="ml-2">Notificações de estoque</span>
+                                        </label>
+                                        <label class="inline-flex items-center block mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600" checked>
+                                            <span class="ml-2">Notificações de tarefas</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>Português (Brasil)</option>
+                                    <option>Inglês</option>
+                                    <option>Espanhol</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Settings -->
+                    <div class="config-section bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-store text-indigo-600 mr-2"></i>
+                            Configurações da Loja
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Loja</label>
+                                    <input type="text" value="Quitutes da Sirlene" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                                    <input type="text" value="12.345.678/0001-90" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                                <input type="text" value="Rua dos Doces, 123 - Centro" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                                    <input type="text" value="Doce Cidade" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                                    <input type="text" value="SP" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+                                    <input type="text" value="12345-678" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Horário de Funcionamento</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 mb-1">Abertura</label>
+                                        <input type="time" value="08:00" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 mb-1">Fechamento</label>
+                                        <input type="time" value="18:00" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div class="config-section bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-sliders-h text-indigo-600 mr-2"></i>
+                            Configurações Avançadas
+                        </h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Backup</label>
+                                <div class="flex space-x-2">
+                                    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                                        <i class="fas fa-download mr-1"></i> Exportar Dados
+                                    </button>
+                                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
+                                        <i class="fas fa-upload mr-1"></i> Importar Dados
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Limpar Cache</label>
+                                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
+                                    <i class="fas fa-trash-alt mr-1"></i> Limpar
+                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Zezinho ou Sirlene?</label>
+                                <div class="flex space-x-2">
+                                    <button onclick="askIfZezinho()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+                                        <i class="fas fa-question-circle mr-1"></i> Clique aqui para revelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="config-section bg-white rounded-xl shadow-sm p-6 border border-red-200">
+                        <h2 class="text-lg font-semibold mb-4 flex items-center text-red-600">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Zona de Perigo
+                        </h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Resetar Configurações</label>
+                                <p class="text-sm text-gray-500 mb-2">Isso redefinirá todas as configurações para os valores padrão.</p>
+                                <button class="bg-white border border-red-300 text-red-600 px-4 py-2 rounded-lg hover:bg-red-50">
+                                    <i class="fas fa-undo mr-1"></i> Resetar
+                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Excluir Conta</label>
+                                <p class="text-sm text-gray-500 mb-2">Esta ação não pode ser desfeita. Todos os dados serão permanentemente removidos.</p>
+                                <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                                    <i class="fas fa-trash-alt mr-1"></i> Excluir Conta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Easter Egg Game Button -->
+    <div id="easter-egg-game" onclick="toggleGame()">
+        <i class="fas fa-gamepad"></i>
+    </div>
+
+    <!-- Easter Egg Game Container -->
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+    </div>
+
+    <!-- Crash Screen -->
+    <div id="crash-screen">
+        <h1>ERRO CRÍTICO DO SISTEMA</h1>
+        <p>ERRO: 0xDEADBEEF</p>
+        <p>MEMÓRIA CORROMPIDA</p>
+        <p>PÁGINA INVÁLIDA</p>
+        <p>STACK OVERFLOW</p>
+        <p>Zezinho detectado!</p>
+        <p>Reiniciando sistema em 3... 2... 1...</p>
+        <p>Just kidding! 😜</p>
+        <button onclick="hideCrashScreen()">Continuar</button>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('ml-64');
+            document.querySelector('.main-content').classList.toggle('ml-20');
+            
+            const icon = this.querySelector('i');
+            if (document.querySelector('.sidebar').classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // Easter egg game
+        let gameVisible = false;
+        let gameInitialized = false;
+        let canvas, ctx;
+        let bird = {
+            x: 50,
+            y: 150,
+            radius: 15,
+            velocity: 0,
+            gravity: 0.5,
+            jump: -10,
+            color: '#FFD700'
+        };
+        let pipes = [];
+        let score = 0;
+        let gameOver = false;
+        let animationId;
+
+        function toggleGame() {
+            gameVisible = !gameVisible;
+            const gameContainer = document.getElementById('game-container');
+            const gameButton = document.getElementById('easter-egg-game');
+            
+            if (gameVisible) {
+                gameContainer.style.display = 'block';
+                gameButton.innerHTML = '<i class="fas fa-times"></i>';
+                
+                if (!gameInitialized) {
+                    initGame();
+                    gameInitialized = true;
+                } else {
+                    resetGame();
+                }
+                
+                animate();
+            } else {
+                gameContainer.style.display = 'none';
+                gameButton.innerHTML = '<i class="fas fa-gamepad"></i>';
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        function initGame() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = 300;
+            canvas.height = 400;
+            
+            // Add event listeners
+            canvas.addEventListener('click', () => {
+                if (!gameOver) {
+                    bird.velocity = bird.jump;
+                } else {
+                    resetGame();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    if (!gameOver) {
+                        bird.velocity = bird.jump;
+                    } else {
+                        resetGame();
+                    }
+                }
+            });
+            
+            // Start generating pipes
+            setInterval(() => {
+                if (!gameOver) {
+                    generatePipe();
+                }
+            }, 2000);
+        }
+
+        function resetGame() {
+            bird.y = 150;
+            bird.velocity = 0;
+            pipes = [];
+            score = 0;
+            gameOver = false;
+            animate();
+        }
+
+        function generatePipe() {
+            const gap = 120;
+            const topHeight = Math.floor(Math.random() * (canvas.height - gap - 100)) + 50;
+            const bottomHeight = canvas.height - topHeight - gap;
+            
+            pipes.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                bottomHeight: bottomHeight,
+                width: 50,
+                gap: gap,
+                color: '#4CAF50',
+                passed: false
+            });
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update bird
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            
+            // Draw bird
+            ctx.fillStyle = bird.color;
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Update and draw pipes
+            for (let i = 0; i < pipes.length; i++) {
+                const pipe = pipes[i];
+                
+                // Move pipe
+                pipe.x -= 2;
+                
+                // Draw top pipe
+                ctx.fillStyle = pipe.color;
+                ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                
+                // Draw bottom pipe
+                ctx.fillRect(pipe.x, canvas.height - pipe.bottomHeight, pipe.width, pipe.bottomHeight);
+                
+                // Check collision
+                if (
+                    bird.x + bird.radius > pipe.x && 
+                    bird.x - bird.radius < pipe.x + pipe.width && 
+                    (bird.y - bird.radius < pipe.topHeight || 
+                     bird.y + bird.radius > canvas.height - pipe.bottomHeight)
+                ) {
+                    gameOver = true;
+                }
+                
+                // Check if passed pipe
+                if (!pipe.passed && bird.x > pipe.x + pipe.width) {
+                    pipe.passed = true;
+                    score++;
+                }
+                
+                // Remove pipes that are off screen
+                if (pipe.x + pipe.width < 0) {
+                    pipes.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Check if bird is out of bounds
+            if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+                gameOver = true;
+            }
+            
+            // Draw score
+            ctx.fillStyle = '#000';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 30);
+            
+            // Draw game over message
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#FFF';
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+                ctx.fillText('Click to restart', canvas.width / 2, canvas.height / 2 + 60);
+                ctx.textAlign = 'left';
+                
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        // Zezinho/Sirlene Easter Egg
+        function askIfZezinho() {
+            const response = confirm("Você é o Zezinho ou a Sirlene?");
+            if (response) {
+                showCrashScreen();
+            } else {
+                alert("Ufa! O sistema está seguro... por enquanto.");
+            }
+        }
+
+        function showCrashScreen() {
+            document.getElementById('crash-screen').style.display = 'flex';
+        }
+
+        function hideCrashScreen() {
+            document.getElementById('crash-screen').style.display = 'none';
+            alert("Haha! Pegadinha do malandro! 😂");
+        }
+
+        // Show error/success message
+        function mostrarMensagem(texto, tipo = 'error') {
+            const mensagem = document.getElementById('mensagem-erro');
+            const textoElemento = document.getElementById('erro-texto');
+            
+            textoElemento.textContent = texto;
+            
+            if (tipo === 'error') {
+                mensagem.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded';
+            } else {
+                mensagem.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded';
+            }
+            
+            mensagem.classList.remove('hidden');
+            
+            setTimeout(() => {
+                mensagem.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
