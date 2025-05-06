@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Quitutes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles */
+        .sidebar {
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+        
+        .main-content {
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed+.main-content {
+            margin-left: 80px;
+        }
+        
+        .popup {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .filter-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 10;
+            min-width: 200px;
+        }
+        
+        .filter-dropdown.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar bg-indigo-700 text-white w-64 flex flex-col fixed h-full">
+            <a href="index.html">
+                <div class="p-4 flex items-center space-x-3 border-b border-indigo-600">
+                    <div class="bg-white p-2 rounded-lg">
+                        <i class="fas fa-cookie-bite text-indigo-700 text-xl"></i>
+                    </div>
+                    <span class="logo-text font-bold text-xl">Quitutes</span>
+                </div>
+            </a>
+            
+            <div class="p-4 flex-1 overflow-y-auto">
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="dashboard.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="estoque.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-box-open mr-3"></i>
+                                <span class="nav-text">Estoque</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="receitas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-utensils mr-3"></i>
+                                <span class="nav-text">Receitas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tarefas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tasks mr-3"></i>
+                                <span class="nav-text">Tarefas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="financas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-money-bill-wave mr-3"></i>
+                                <span class="nav-text">Finanças</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="vendas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                <span class="nav-text">Vendas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="relatorios.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-chart-bar mr-3"></i>
+                                <span class="nav-text">Relatórios</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="sustentabilidade.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-leaf mr-3"></i>
+                                <span class="nav-text">Sustentabilidade</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="config.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-cog mr-3"></i>
+                                <span class="nav-text">Configurações</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            
+            <div class="p-4 border-t border-indigo-600">
+                <button id="toggle-sidebar" class="flex items-center justify-center w-full p-2 rounded-lg hover:bg-indigo-800 transition">
+                    <i class="fas fa-chevron-left"></i>
+                    <span class="nav-text ml-3">Recolher</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content ml-64 flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-chart-bar text-indigo-600 mr-2"></i>
+                    Relatórios
+                </h1>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Pesquisar..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <i class="fas fa-bell text-gray-600 text-xl cursor-pointer hover:text-indigo-600"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </div>
+                        
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Filter Section -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4 md:mb-0">Filtrar Relatórios</h2>
+                        
+                        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                            <div class="relative">
+                                <select class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>Tipo de Relatório</option>
+                                    <option>Vendas</option>
+                                    <option>Estoque</option>
+                                    <option>Financeiro</option>
+                                    <option>Clientes</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <select class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>Período</option>
+                                    <option>Hoje</option>
+                                    <option>Esta Semana</option>
+                                    <option>Este Mês</option>
+                                    <option>Este Ano</option>
+                                    <option>Personalizado</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            
+                            <button class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center justify-center transition">
+                                <i class="fas fa-filter mr-2"></i>
+                                <span>Aplicar Filtros</span>
+                            </button>
+                            
+                            <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 px-4 rounded-lg flex items-center justify-center transition">
+                                <i class="fas fa-file-export mr-2"></i>
+                                <span>Exportar</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Date Range Picker (hidden by default) -->
+                    <div class="mt-4 hidden" id="dateRangePicker">
+                        <div class="flex flex-col md:flex-row md:space-x-4">
+                            <div class="mb-4 md:mb-0">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                                <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                                <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total de Vendas</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1">R$ 8,745</h3>
+                                <p class="text-sm text-green-500 mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    <span>15% em relação ao mês passado</span>
+                                </p>
+                            </div>
+                            <div class="bg-indigo-100 p-3 rounded-lg">
+                                <i class="fas fa-shopping-bag text-indigo-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total de Pedidos</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1">86</h3>
+                                <p class="text-sm text-green-500 mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    <span>10% em relação ao mês passado</span>
+                                </p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class="fas fa-receipt text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Ticket Médio</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1">R$ 101,69</h3>
+                                <p class="text-sm text-green-500 mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    <span>4.5% em relação ao mês passado</span>
+                                </p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-lg">
+                                <i class="fas fa-tags text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Novos Clientes</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1">32</h3>
+                                <p class="text-sm text-blue-500 mt-2 flex items-center">
+                                    <i class="fas fa-user-plus mr-1"></i>
+                                    <span>Este mês: 32</span>
+                                </p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Sales Trend Chart -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Tendência de Vendas</h2>
+                            <div class="relative">
+                                <button id="salesFilterBtn" class="px-3 py-1 text-sm border rounded-lg bg-indigo-50 text-indigo-600 flex items-center">
+                                    <i class="fas fa-filter mr-1"></i>
+                                    <span>Mensal</span>
+                                </button>
+                                <div id="salesFilterDropdown" class="filter-dropdown mt-1 p-2">
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded">Diário</button>
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded">Semanal</button>
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded bg-indigo-50 text-indigo-600">Mensal</button>
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded">Anual</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="salesTrendChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Revenue by Category Chart -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Receita por Categoria</h2>
+                            <div class="relative">
+                                <button id="categoryFilterBtn" class="px-3 py-1 text-sm border rounded-lg bg-indigo-50 text-indigo-600 flex items-center">
+                                    <i class="fas fa-filter mr-1"></i>
+                                    <span>Este Mês</span>
+                                </button>
+                                <div id="categoryFilterDropdown" class="filter-dropdown mt-1 p-2">
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded">Hoje</button>
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded">Esta Semana</button>
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded bg-indigo-50 text-indigo-600">Este Mês</button>
+                                    <button class="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded">Este Ano</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="categoryRevenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Customer Acquisition Chart -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Aquisição de Clientes</h2>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-sm border rounded-lg bg-indigo-50 text-indigo-600">Mês</button>
+                                <button class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50">Ano</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="customerAcquisitionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Performance Chart -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Desempenho dos Produtos</h2>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-sm border rounded-lg bg-indigo-50 text-indigo-600">Top 5</button>
+                                <button class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50">Top 10</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="productPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Reports Section -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Relatórios Detalhados</h2>
+                        <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <span>Gerar Relatório Completo</span>
+                            <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Relatório
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Período
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Gerado em
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ação
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                                <i class="fas fa-file-alt text-indigo-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Relatório de Vendas</div>
+                                                <div class="text-sm text-gray-500">PDF</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        Junho 2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        01/07/2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Completo</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Visualizar</button>
+                                        <button class="text-gray-600 hover:text-gray-900">Download</button>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                                <i class="fas fa-file-excel text-indigo-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Relatório Financeiro</div>
+                                                <div class="text-sm text-gray-500">Excel</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        2º Trimestre 2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        05/07/2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Completo</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Visualizar</button>
+                                        <button class="text-gray-600 hover:text-gray-900">Download</button>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                                <i class="fas fa-file-alt text-indigo-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Relatório de Estoque</div>
+                                                <div class="text-sm text-gray-500">PDF</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        Semana 27/2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        03/07/2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Completo</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Visualizar</button>
+                                        <button class="text-gray-600 hover:text-gray-900">Download</button>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                                <i class="fas fa-file-alt text-indigo-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Relatório de Clientes</div>
+                                                <div class="text-sm text-gray-500">PDF</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        Junho 2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        30/06/2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Completo</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Visualizar</button>
+                                        <button class="text-gray-600 hover:text-gray-900">Download</button>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                                <i class="fas fa-file-alt text-indigo-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Relatório de Desempenho</div>
+                                                <div class="text-sm text-gray-500">PDF</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        2º Trimestre 2023
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                        Em andamento...
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Processando</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-gray-400 cursor-not-allowed mr-3" disabled>Visualizar</button>
+                                        <button class="text-gray-400 cursor-not-allowed" disabled>Download</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-4 border-t flex items-center justify-between text-sm text-gray-600">
+                        <div>Mostrando <span class="font-medium">1</span> a <span class="font-medium">5</span> de <span class="font-medium">12</span> relatórios</div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50"><i class="fas fa-chevron-left"></i></button>
+                            <button class="px-3 py-1 border rounded bg-indigo-600 text-white">1</button>
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border rounded hover:bg-gray-50"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('ml-64');
+            document.querySelector('.main-content').classList.toggle('ml-20');
+            
+            const icon = this.querySelector('i');
+            if (document.querySelector('.sidebar').classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+        
+        // Toggle filter dropdowns
+        document.getElementById('salesFilterBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('salesFilterDropdown').classList.toggle('show');
+            document.getElementById('categoryFilterDropdown').classList.remove('show');
+        });
+        
+        document.getElementById('categoryFilterBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('categoryFilterDropdown').classList.toggle('show');
+            document.getElementById('salesFilterDropdown').classList.remove('show');
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            document.getElementById('salesFilterDropdown').classList.remove('show');
+            document.getElementById('categoryFilterDropdown').classList.remove('show');
+        });
+        
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sales Trend Chart
+            const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+            const salesTrendChart = new Chart(salesTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'Vendas (R$)',
+                        data: [6500, 5900, 8000, 8100, 8600, 8745, 9200],
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Category Revenue Chart
+            const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+            const categoryRevenueChart = new Chart(categoryRevenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bolos', 'Doces', 'Salgados', 'Bebidas', 'Outros'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.8)',
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(129, 140, 248, 0.8)',
+                            'rgba(165, 180, 252, 0.8)',
+                            'rgba(199, 210, 254, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(79, 70, 229, 1)',
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(129, 140, 248, 1)',
+                            'rgba(165, 180, 252, 1)',
+                            'rgba(199, 210, 254, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${percentage}% (R$ ${value})`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+            
+            // Customer Acquisition Chart
+            const customerAcquisitionCtx = document.getElementById('customerAcquisitionChart').getContext('2d');
+            const customerAcquisitionChart = new Chart(customerAcquisitionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Novos Clientes',
+                        data: [12, 19, 15, 21, 18, 32],
+                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Product Performance Chart
+            const productPerformanceCtx = document.getElementById('productPerformanceChart').getContext('2d');
+            const productPerformanceChart = new Chart(productPerformanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Bolo de Chocolate', 'Brigadeiro', 'Beijinho', 'Torta de Limão', 'Cookie'],
+                    datasets: [{
+                        label: 'Quantidade Vendida',
+                        data: [45, 72, 38, 29, 56],
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.7)',
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(129, 140, 248, 0.7)',
+                            'rgba(165, 180, 252, 0.7)',
+                            'rgba(199, 210, 254, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(79, 70, 229, 1)',
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(129, 140, 248, 1)',
+                            'rgba(165, 180, 252, 1)',
+                            'rgba(199, 210, 254, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white flex items-center ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'translate-x-4', 'transition');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Script: pagina atual sombra (corrigido)
+        document.addEventListener('DOMContentLoaded', function () {
+            // Remove sombra de todos
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                link.classList.remove('bg-indigo-800');
+            });
+
+            // Aplica sombra apenas ao item correto
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (
+                    (window.location.pathname.endsWith('dashboard.html') || window.location.pathname.endsWith('index.html')) &&
+                    (href === '#' || href === 'dashboard.html' || href === 'index.html')
+                ) {
+                    link.classList.add('bg-indigo-800');
+                } else if (
+                    href &&
+                    href !== '#' &&
+                    window.location.pathname.endsWith(href)
+                ) {
+                    link.classList.add('bg-indigo-800');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

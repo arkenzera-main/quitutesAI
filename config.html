@@ -189,6 +189,18 @@
                             </a>
                         </li>
                         <li>
+                            <a href="relatorios.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-chart-bar mr-3"></i>
+                                <span class="nav-text">Relatórios</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="sustentabilidade.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-leaf mr-3"></i>
+                                <span class="nav-text">Sustentabilidade</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="config.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
                                 <i class="fas fa-cog mr-3"></i>
                                 <span class="nav-text">Configurações</span>
@@ -717,6 +729,31 @@
                 mensagem.classList.add('hidden');
             }, 5000);
         }
+
+        // Script: pagina atual sombra (corrigido)
+        document.addEventListener('DOMContentLoaded', function () {
+            // Remove sombra de todos
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                link.classList.remove('bg-indigo-800');
+            });
+
+            // Aplica sombra apenas ao item correto
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (
+                    (window.location.pathname.endsWith('dashboard.html') || window.location.pathname.endsWith('index.html')) &&
+                    (href === '#' || href === 'dashboard.html' || href === 'index.html')
+                ) {
+                    link.classList.add('bg-indigo-800');
+                } else if (
+                    href &&
+                    href !== '#' &&
+                    window.location.pathname.endsWith(href)
+                ) {
+                    link.classList.add('bg-indigo-800');
+                }
+            });
+        });
     </script>
 </body>
 </html>

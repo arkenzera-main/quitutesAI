@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustentabilidade - Quitutes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles */
+        .sidebar {
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+        
+        .main-content {
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed+.main-content {
+            margin-left: 80px;
+        }
+        
+        .popup {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .eco-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .eco-badge::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0) 70%);
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) rotate(30deg);
+            }
+            100% {
+                transform: translateX(100%) rotate(30deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar bg-indigo-700 text-white w-64 flex flex-col fixed h-full">
+            <a href="index.html">
+                <div class="p-4 flex items-center space-x-3 border-b border-indigo-600">
+                    <div class="bg-white p-2 rounded-lg">
+                        <i class="fas fa-cookie-bite text-indigo-700 text-xl"></i>
+                    </div>
+                    <span class="logo-text font-bold text-xl">Quitutes</span>
+                </div>
+            </a>
+            
+            <div class="p-4 flex-1 overflow-y-auto">
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="dashboard.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="estoque.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-box-open mr-3"></i>
+                                <span class="nav-text">Estoque</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="receitas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-utensils mr-3"></i>
+                                <span class="nav-text">Receitas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tarefas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-tasks mr-3"></i>
+                                <span class="nav-text">Tarefas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="financas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-money-bill-wave mr-3"></i>
+                                <span class="nav-text">Finanças</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="vendas.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                <span class="nav-text">Vendas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="relatorios.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-chart-bar mr-3"></i>
+                                <span class="nav-text">Relatórios</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="sustentabilidade.html" class="nav-item flex items-center p-3 rounded-lg bg-indigo-800">
+                                <i class="fas fa-leaf mr-3"></i>
+                                <span class="nav-text">Sustentabilidade</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="config.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-800 transition">
+                                <i class="fas fa-cog mr-3"></i>
+                                <span class="nav-text">Configurações</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            
+            <div class="p-4 border-t border-indigo-600">
+                <button id="toggle-sidebar" class="flex items-center justify-center w-full p-2 rounded-lg hover:bg-indigo-800 transition">
+                    <i class="fas fa-chevron-left"></i>
+                    <span class="nav-text ml-3">Recolher</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content ml-64 flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-leaf text-green-500 mr-2"></i>
+                    Sustentabilidade
+                </h1>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Pesquisar..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <i class="fas fa-bell text-gray-600 text-xl cursor-pointer hover:text-indigo-600"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </div>
+                        
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Impact Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Óleo Reciclado</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="total-oil">0 litros</h3>
+                                <p class="text-sm text-green-500 mt-2 flex items-center">
+                                    <i class="fas fa-recycle mr-1"></i>
+                                    <span>Equivalente a 120 garrafas PET</span>
+                                </p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class="fas fa-oil-can text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Impacto Ambiental</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1">+1.200L água</h3>
+                                <p class="text-sm text-blue-500 mt-2 flex items-center">
+                                    <i class="fas fa-tint mr-1"></i>
+                                    <span>Água preservada</span>
+                                </p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <i class="fas fa-globe-europe text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Certificação Verde</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1">Nível 2</h3>
+                                <p class="text-sm text-yellow-500 mt-2 flex items-center">
+                                    <i class="fas fa-award mr-1"></i>
+                                    <span>Continue assim!</span>
+                                </p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-lg eco-badge">
+                                <i class="fas fa-certificate text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calculator Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Oil Calculator -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Calculadora de Óleo Sustentável</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Produto</label>
+                                <select id="product-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="frito">Produtos Fritos</option>
+                                    <option value="assado">Produtos Assados</option>
+                                    <option value="doce">Doces e Sobremesas</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Quantidade Produzida</label>
+                                <input type="number" id="quantity" placeholder="Ex: 100" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                                <select id="period" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="day">Diário</option>
+                                    <option value="week">Semanal</option>
+                                    <option value="month" selected>Mensal</option>
+                                    <option value="year">Anual</option>
+                                </select>
+                            </div>
+                            
+                            <button id="calculate-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center justify-center transition">
+                                <i class="fas fa-calculator mr-2"></i>
+                                <span>Calcular Óleo Utilizado</span>
+                            </button>
+                        </div>
+                        
+                        <div id="result" class="mt-6 p-4 bg-green-50 rounded-lg hidden">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-green-500 text-xl mt-1"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-green-800">Resultado do Cálculo</h3>
+                                    <div class="mt-2 text-sm text-green-700">
+                                        <p id="result-text"></p>
+                                        <p class="mt-2">Você está contribuindo para um meio ambiente mais limpo!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recycling Info -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Como Reciclar Óleo Corretamente</h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 p-2 rounded-lg">
+                                    <i class="fas fa-filter text-indigo-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-800">Filtre o óleo usado</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Passe o óleo por um filtro de café ou pano limpo para remover resíduos de alimentos.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 p-2 rounded-lg">
+                                    <i class="fas fa-wine-bottle text-indigo-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-800">Armazene corretamente</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Guarde o óleo em garrafas PET limpas e bem vedadas para evitar vazamentos.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 p-2 rounded-lg">
+                                    <i class="fas fa-truck text-indigo-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-800">Descarte em pontos de coleta</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Leve o óleo armazenado até um ponto de coleta especializado ou entre em contato com cooperativas de reciclagem.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-lightbulb text-blue-500 text-xl mt-1"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-blue-800">Você sabia?</h3>
+                                        <div class="mt-2 text-sm text-blue-700">
+                                            <p>1 litro de óleo descartado incorretamente pode contaminar até 25.000 litros de água. Ao reciclar, você está ajudando a preservar nossos recursos hídricos!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Environmental Impact -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Impacto Ambiental do Seu Negócio</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-green-50 rounded-lg flex items-center">
+                            <div class="bg-green-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-tree text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Árvores equivalentes</p>
+                                <p class="text-xl font-bold text-gray-800">12</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-blue-50 rounded-lg flex items-center">
+                            <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-car text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Km de carro não poluídos</p>
+                                <p class="text-xl font-bold text-gray-800">1.250 km</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-purple-50 rounded-lg flex items-center">
+                            <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-bolt text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Energia economizada</p>
+                                <p class="text-xl font-bold text-gray-800">850 kWh</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-medium text-gray-700">Seu progresso este mês</h3>
+                            <span class="text-sm font-medium text-indigo-600">65% da meta</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recycling Partners -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Parceiros de Reciclagem</h2>
+                        <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <span>Ver todos</span>
+                            <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="border rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center mb-3">
+                                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-recycle text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">EcoÓleo</h3>
+                                    <p class="text-sm text-gray-500">Coleta especializada</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Coletamos óleo usado em estabelecimentos comerciais toda quinta-feira.</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-phone-alt mr-2"></i>
+                                <span>(11) 98765-4321</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center mb-3">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-hand-holding-heart text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Recicla Tudo</h3>
+                                    <p class="text-sm text-gray-500">Cooperativa de reciclagem</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Aceitamos óleo usado e outros materiais recicláveis em nosso centro.</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <span>Rua Sustentável, 123</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center mb-3">
+                                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-truck text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">BioColeta</h3>
+                                    <p class="text-sm text-gray-500">Serviço de coleta</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Agendamos a coleta conforme sua necessidade e volume de óleo.</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-globe mr-2"></i>
+                                <span>www.biocoleta.com.br</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('ml-64');
+            document.querySelector('.main-content').classList.toggle('ml-20');
+            
+            const icon = this.querySelector('i');
+            if (document.querySelector('.sidebar').classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+        
+        // Oil Calculator
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            const productType = document.getElementById('product-type').value;
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const period = document.getElementById('period').value;
+            
+            if (isNaN(quantity) || quantity <= 0) {
+                showNotification("Por favor, insira uma quantidade válida.", "error");
+                return;
+            }
+            
+            // Average oil usage per product (in liters)
+            let oilPerUnit = 0;
+            switch(productType) {
+                case 'frito':
+                    oilPerUnit = 0.05; // 50ml per fried product
+                    break;
+                case 'assado':
+                    oilPerUnit = 0.01; // 10ml per baked product
+                    break;
+                case 'doce':
+                    oilPerUnit = 0.02; // 20ml per sweet
+                    break;
+                case 'outros':
+                    oilPerUnit = 0.03; // 30ml for others
+                    break;
+            }
+            
+            // Adjust for period
+            let periodMultiplier = 1;
+            switch(period) {
+                case 'day':
+                    periodMultiplier = 1;
+                    break;
+                case 'week':
+                    periodMultiplier = 7;
+                    break;
+                case 'month':
+                    periodMultiplier = 30;
+                    break;
+                case 'year':
+                    periodMultiplier = 365;
+                    break;
+            }
+            
+            const totalOil = (quantity * oilPerUnit * periodMultiplier).toFixed(2);
+            
+            // Update result
+            document.getElementById('result-text').innerHTML = `
+                <strong>${totalOil} litros</strong> de óleo foram utilizados na produção de 
+                ${quantity} ${getProductName(productType)} no período ${getPeriodName(period)}.
+                <br><br>
+                <strong>Dica:</strong> Este óleo pode ser transformado em ${(totalOil * 0.9).toFixed(2)} litros de biodiesel!
+            `;
+            
+            document.getElementById('result').classList.remove('hidden');
+            
+            // Update total oil display
+            const currentTotal = parseFloat(document.getElementById('total-oil').textContent) || 0;
+            const newTotal = currentTotal + parseFloat(totalOil);
+            document.getElementById('total-oil').textContent = newTotal.toFixed(2) + ' litros';
+            
+            showNotification("Cálculo realizado com sucesso!", "success");
+        });
+        
+        function getProductName(type) {
+            switch(type) {
+                case 'frito': return 'produtos fritos';
+                case 'assado': return 'produtos assados';
+                case 'doce': return 'doces e sobremesas';
+                case 'outros': return 'outros produtos';
+            }
+        }
+        
+        function getPeriodName(period) {
+            switch(period) {
+                case 'day': return 'diário';
+                case 'week': return 'semanal';
+                case 'month': return 'mensal';
+                case 'year': return 'anual';
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white flex items-center ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'translate-x-4', 'transition');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        // Script: pagina atual sombra (corrigido)
+        document.addEventListener('DOMContentLoaded', function () {
+            // Remove sombra de todos
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                link.classList.remove('bg-indigo-800');
+            });
+
+            // Aplica sombra apenas ao item correto
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (
+                    (window.location.pathname.endsWith('dashboard.html') || window.location.pathname.endsWith('index.html')) &&
+                    (href === '#' || href === 'dashboard.html' || href === 'index.html')
+                ) {
+                    link.classList.add('bg-indigo-800');
+                } else if (
+                    href &&
+                    href !== '#' &&
+                    window.location.pathname.endsWith(href)
+                ) {
+                    link.classList.add('bg-indigo-800');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

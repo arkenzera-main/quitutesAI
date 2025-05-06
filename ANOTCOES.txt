@@ -1,0 +1,5 @@
+calculadora de oleo ODS faltando
+
+funcionlidade de imprimir na tela de vendas faltando
+
+garantir registro/função sinal de pagamento ( ENCOMENDO FIADO ) 
