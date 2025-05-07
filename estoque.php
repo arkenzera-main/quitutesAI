@@ -76,7 +76,7 @@
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "quitutes_db";
+    $dbname = "quitutes_ai";
 
     // Criar conexão
     $conn = new mysqli($servername, $username, $password, $dbname);
