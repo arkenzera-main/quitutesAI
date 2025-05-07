@@ -76,8 +76,8 @@
     $servername = "localhost";
     $username = "root"; // usuário padrão do MySQL
     $password = ""; // senha padrão (vazia no XAMPP)
-    $dbname = "quitutes_db";
-
+    $dbname = "quitutes_ai";
+        
     // Criar conexão
     $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -199,6 +199,8 @@
                 $stmt->bind_param("sss", 'Administrador', 'admin@quitutes.com', $senha);
                 $stmt->execute();
             }
+            header("Location: ".$_SERVER['PHP_SELF']);
+            exit();
         } else {
             die("Error creating database: " . $conn->error);
         }
